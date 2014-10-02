@@ -1,0 +1,17 @@
+<h3>Настройки</h3>
+
+<%= link_to "Создать", new_tariff_setting_path %>
+<br>
+<table class='table'>
+<tr>
+  <th>ID</th>
+  <th>Код</th>
+  <th>&nbsp;</th>
+</tr>
+<% @tariff_settings.each do |tariff| %>
+  <tr>
+    <td><%= link_to tariff.id, edit_tariff_setting_path(tariff.id) %></td>
+    <td><%= tariff.code %></td>
+    <td><%= link_to "Удалить", tariff_setting_path(tariff.id), method: :delete, data: {confirm: "Вы уверены?"} %></td>
+  </tr>
+<% end %>

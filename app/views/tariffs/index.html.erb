@@ -1,0 +1,21 @@
+<h3>Тарифы</h3>
+
+<%= link_to "Создать тариф", new_tariff_path %>
+<br>
+<table class='table'>
+<tr>
+  <th>ID</th>
+  <th>Описание</th>
+  <th>Активен</th>
+  <th>Дата старта</th>
+  <th>&nbsp;</th>
+</tr>
+<% @tariffs.each do |tariff| %>
+  <tr>
+    <td><%= link_to tariff.id, edit_tariff_path(tariff.id) %></td>
+    <td><%= tariff.note %></td>
+    <td><%= tariff.is_active %></td>
+    <td><%= tariff.started_at %></td>
+    <td><%= link_to "Удалить", tariff_path(tariff.id), method: :delete, data: {confirm: "Вы уверены?"} %></td>
+  </tr>
+<% end %>

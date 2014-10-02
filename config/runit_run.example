@@ -1,0 +1,13 @@
+#!/bin/sh
+
+export RAILS_ENV=development
+export HOME=/home/danko-progress
+export PATH=/home/danko-progress/.rvm/gems/ruby-2.1.1@global/bin:/home/danko-progress/.rvm/rubies/ruby-2.1.1/bin:/home/danko-progress/.rvm/bin
+export LANG=ru_RU.UTF-8
+export GEM_HOME=$HOME/.rvm/gems/ruby-2.1.1@calc_tariffs
+export GEM_PATH=$HOME/.rvm/gems/ruby-2.1.1@calc_tariffs:/home/danko-progress/.rvm/gems/ruby-2.1.1@global
+
+cd $HOME/svp/calc_tariffs/lib
+
+exec 2>&1
+exec chpst -udanko-progress ruby ./runner.rb

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  note: MyText
+  code: MyText
+  started_at: 2014-09-22 15:47:49
+  is_active: false
+
+two:
+  note: MyText
+  code: MyText
+  started_at: 2014-09-22 15:47:49
+  is_active: false

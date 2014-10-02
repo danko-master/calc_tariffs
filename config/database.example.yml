@@ -1,0 +1,26 @@
+
+default: &default
+  adapter: postgresql
+  encoding: utf8
+
+development:
+  <<: *default
+  database: svpdb
+  host: localhost
+  port: 15432
+  username: svp
+  password: qir29sir
+
+
+
+test:
+  <<: *default
+  # database: db/test.sqlite3
+
+production:
+  <<: *default
+  database: svpdb
+  host: localhost
+  port: 5432
+  username: svp
+  password: qir29sir

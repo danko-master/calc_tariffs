@@ -1,0 +1,9 @@
+<%= simple_form_for @tariff do |f| %>
+  <div>Краткое описание тарифа:</div>
+  <%= f.input :note, label: false %>
+  <div>Код DSL:</div>
+  <%= f.input :code, label: false %>
+  <%= f.input :is_active, label: 'Активен' %>
+
+  <%= f.submit "Сохранить" %>
+<% end %>

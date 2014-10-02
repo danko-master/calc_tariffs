@@ -1,0 +1,12 @@
+default: &default
+  runner:
+    instances: 3
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

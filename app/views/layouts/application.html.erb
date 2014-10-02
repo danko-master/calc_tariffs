@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CalcTariffs</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<%= link_to "Настройки", tariff_settings_path %>
+<%= link_to "Тарифы", tariffs_path %>
+<hr>
+
+<%= yield %>
+
+</body>
+</html>
