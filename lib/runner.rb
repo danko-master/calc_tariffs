@@ -1,11 +1,6 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-# перед стартом запускаем sidekiq
-# export BACKGROUNDJOBS_ENV=development && bundle exec sidekiq
-# export BACKGROUNDJOBS_ENV=test && bundle exec sidekiq
-# export BACKGROUNDJOBS_ENV=production && bundle exec sidekiq
-
 # Run: export RAILS_ENV=development && ruby ./runner.rb
 # Run: export RAILS_ENV=test && ruby ./runner.rb
 # Run: export RAILS_ENV=production && ruby ./runner.rb
@@ -19,6 +14,8 @@ p "runner"
 # p ENV['GEM_HOME']
 # p ENV['GEM_PATH']
 
+current_logger = Logger.new Rails.root.join("log", "tariff_machine_runner." + Rails.env + ".log")
+
 
 if ENV['RAILS_ENV']
   p ENV['RAILS_ENV']
@@ -31,66 +28,51 @@ if ENV['RAILS_ENV']
   end
   
 
-  $redis = Redis.new
-  p "Получение всех компаний"
+  $redis = Redis.new  
   # ключи в запущенных instances
-  $keys_instances = Hash.new
+  $redis.set("keys_instances", Hash.new)
   
+  current_logger.info p "Получение всех компаний"
   Company.all.each do |customer|
     if $redis.get("customers:#{customer.id}").blank?
       $redis.set("customers:#{customer.id}", customer.id)
       $redis.set("customers:#{customer.id}:discount", customer.discount)
     end
   end
-
-  p "Получаем тариф"
-  # Получаем тариф
-  # должна быть единственная настройка
-  tariff_setting = TariffSetting.last
-  if tariff_setting.present?
-    tariff_id = eval(tariff_setting.code)
-    tariff = Tariff.find_by_id tariff_id
-    $tariff = tariff if tariff.present?
-  end
   
-  p "Получаем информацию из кролика"
-  # получаем инфу для обработки, это необходимо, если будет работать несколько экземпляров приложения
-  tdr_data = TariffMachine::Calculation.get_tdr_data
-  if tdr_data.size > 0
-    tdr_data.each_with_index do |tdr, index|
-      $redis.set("tdr:#{index}", tdr)
+  tmp = 100
+
+  while inst_num > 0
+    unless $redis.keys("tdr:*").size > 0
+      current_logger.info p "Ждем информацию из кролика"
+      # получаем инфу для обработки, это необходимо, если будет работать несколько экземпляров приложения
+      TariffMachine::Calculation.set_tdr_data_to_redis(current_logger)
+    end
+
+    
+    # проверять будем по кол-ву актуальных tdr
+    while tmp > 0 && $redis.keys("tdr:*").size > 0 do 
+      i = inst_num
+      while i > 0 do 
+        # передаем для асинхронного выполнения
+        CalcWorker.perform_async
+        # tm = TariffMachine::Calculation.new
+        # tm.run
+        
+        current_logger.info p "keys #{$redis.keys("tdr:*")}"
+        i += -1
+      end
+
+      tmp = tmp - 1
     end
   end
 
-
-
-  # $redis.set("tdr", TariffMachine::Calculation.get_tdr_data)
-  # p "tdr from redis"
-  # p $redis.get("tdr")
-
-  ## dev ##
-  tm = TariffMachine::Calculation.new
-  # # puts tm
-  tm.run
-  ## end dev ##
-
-
-  # CalcWorker.perform_async
-  # while inst_num > 0 do 
-    # i = inst_num
-    # while i > 0 do 
-    #   p i
-    #   p "WORKER!"
-    #   CalcWorker.perform_async
-    #   i += -1
-    # end
-  # end
 
   ##########################################
   # добавить результат успешности сохранения в базу
   # необходимо передавать в rabbitmq
 else
-  puts 'Error: not found "RAILS_ENV"!'
+  current_logger.info p 'Error: not found "RAILS_ENV"!'
 end
 
 
@@ -100,17 +82,17 @@ end
 #   p Tariff.first
 # end
 
-# if ENV['RAILS_ENV']
-#   # require 'pry'
-#   # require_relative 'config/config'
-#   # $config = Configuration.load_config
 
-#   # require 'redis'
-#   # $redis = Redis.new(path: $config['redis'])
-  
-#   p ENV['RAILS_ENV']
-#   p Tariff.all
 
-# else
-#   puts 'Error: not found "RAILS_ENV"!'
-# end
+
+  # p "Получаем тариф"
+  # # Получаем тариф
+  # # должна быть единственная настройка
+  # tariff_setting = TariffSetting.last
+  # if tariff_setting.present?
+  #   tariff_id = eval(tariff_setting.code)
+  #   tariff = Tariff.find_by_id tariff_id
+  #   if tariff.present?
+  #     $tariff = tariff 
+  #   end
+  # end
