@@ -1,23 +1,23 @@
-== README
+README
 
-* Запуск АРМ
+== Запуск АРМ
 
-<tt>rails s</tt>
+* <tt>rails s</tt>
 в проде
-<tt>RAILS_ENV=production && bundle exec unicorn</tt>
+* <tt>RAILS_ENV=production && bundle exec unicorn</tt>
 
 
-* Запуск sidekiq для асинхронных задач (выбрать команду, в зависимости от среды)
+== Запуск sidekiq для асинхронных задач (выбрать команду, в зависимости от среды)
 
-<tt>export BACKGROUNDJOBS_ENV=development && bundle exec sidekiq</tt>
-<tt>export BACKGROUNDJOBS_ENV=test && bundle exec sidekiq</tt>
-<tt>export BACKGROUNDJOBS_ENV=production && bundle exec sidekiq</tt>
+* <tt>export BACKGROUNDJOBS_ENV=development && bundle exec sidekiq</tt>
+* <tt>export BACKGROUNDJOBS_ENV=test && bundle exec sidekiq</tt>
+* <tt>export BACKGROUNDJOBS_ENV=production && bundle exec sidekiq</tt>
 
-* Обработчик тарифов
+== Обработчик тарифов
 
-перейти в папку lib в проекте
+Перейти в папку lib в проекте
 
 ~/your rails arm path/lib
 
-<tt>export RAILS_ENV=development && ruby ./runner.rb</tt>
-<tt>export RAILS_ENV=production && ruby ./runner.rb</tt>
+* <tt>export RAILS_ENV=development && ruby ./runner.rb</tt>
+* <tt>export RAILS_ENV=production && ruby ./runner.rb</tt>
