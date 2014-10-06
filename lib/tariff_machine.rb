@@ -71,7 +71,7 @@ module TariffMachine
           delivery_tag = tdr_hash['delivery_tag']
           tdr = Tdr.new(eval( tdr_hash['tdr'] ))
           if tdr.present?
-            obd = OnBoardDevice.find_by_oBD_number(tdr.imei)
+            obd = OnBoardDevice.find_by_number(tdr.imei)
             if obd.present? && obd.truck.present? && obd.truck.company.present?
               customer = obd.truck.company              
               sum = eval(current_tariff.code)                         
@@ -81,11 +81,12 @@ module TariffMachine
               # отправка ack в канал
               @ch.ack(delivery_tag)
 
-              @current_logger.info p "Обработан tdr #{tdr} ::: sum #{sum} ::: #{tdr.full_info}"        
+              @current_logger.info p "Обработан tdr #{tdr} ::: sum #{sum} ::: #{tdr.full_info}"    
             end
           end
         end
       end
+      @conn.close
     end
     
     # применяется в DSL
@@ -98,7 +99,7 @@ module TariffMachine
       # conn = @conn
       # conn.start
 
-      q    = @ch.queue(SETTINGS_CONFIG['runner']['original_queue'])      
+      q    = @ch.queue(SETTINGS_CONFIG['runner']['input_queue'])      
       
       tdr_data = nil
 
@@ -116,12 +117,12 @@ module TariffMachine
 
     def send_tdr_to_rabbit(tdr)
       @current_logger.info p "Отправка tdr в RabbitMQ #{tdr} ::: sum #{tdr.sum} ::: #{tdr.full_info}"
-      # conn = @conn
-      # conn.start
+      conn = Bunny.new
+      conn.start
+      ch   = conn.create_channel
 
-      q    = @ch.queue(SETTINGS_CONFIG['runner']['new_queue'])
+      q    = ch.queue(SETTINGS_CONFIG['runner']['output_queue'])
 
-      tdr_data = []
       tdr_bson = BSON::Document.new(
         # id машины
         imei: tdr.imei, 
@@ -136,10 +137,8 @@ module TariffMachine
         sum: tdr.sum
       )
 
-      tdr_data << tdr_bson
-
-      @ch.default_exchange.publish(tdr_data.to_s, :routing_key => q.name)
-      # conn.close
+      ch.default_exchange.publish(tdr_bson.to_s, :routing_key => q.name)
+      conn.close
     end 
 
   end

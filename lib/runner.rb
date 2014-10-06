@@ -38,7 +38,7 @@ if ENV['RAILS_ENV']
     end
   end
   
-  tmp = 5
+  tmp = 50
 
   while inst_num > 0   
     # проверять будем по кол-ву актуальных tdr

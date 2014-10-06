@@ -1,8 +1,8 @@
 default: &default
   runner:
-    instances: 1
-    original_queue: "svp"
-    new_queue: "svp_tariff"
+    instances: 4
+    input_queue: "svp"
+    output_queue: "svp_tariff"
 
 development:
   <<: *default
