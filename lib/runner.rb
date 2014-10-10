@@ -31,12 +31,12 @@ if ENV['RAILS_ENV']
   $redis = Redis.new  
   
   current_logger.info p "Получение всех компаний"
-  Company.all.each do |customer|
-    if $redis.get("customers:#{customer.id}").blank?
-      $redis.set("customers:#{customer.id}", customer.id)
-      $redis.set("customers:#{customer.id}:discount", customer.discount)
-    end
-  end
+  # Company.all.each do |customer|
+  #   if $redis.get("customers:#{customer.id}").blank?
+  #     $redis.set("customers:#{customer.id}", customer.id)
+  #     $redis.set("customers:#{customer.id}:discount", customer.discount)
+  #   end
+  # end
   
   tmp = 50
 

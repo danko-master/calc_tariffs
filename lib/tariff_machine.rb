@@ -76,7 +76,7 @@ module TariffMachine
               customer = obd.truck.company              
               sum = eval(current_tariff.code)                         
               tdr.sum = sum
-              self.send_tdr_to_rabbit(tdr)  
+              self.send_tdr_to_rabbit(tdr, customer)  
 
               # отправка ack в канал
               @ch.ack(delivery_tag)
@@ -115,7 +115,7 @@ module TariffMachine
       tdr_data
     end
 
-    def send_tdr_to_rabbit(tdr)
+    def send_tdr_to_rabbit(tdr, customer)
       @current_logger.info p "Отправка tdr в RabbitMQ #{tdr} ::: sum #{tdr.sum} ::: #{tdr.full_info}"
       conn = Bunny.new
       conn.start
@@ -134,7 +134,8 @@ module TariffMachine
         lon1: tdr.full_info['lon1'], 
         time1: tdr.full_info['time1'], 
         path: tdr.full_info['path'],
-        sum: tdr.sum
+        sum: tdr.sum,
+        customer_id: customer.id
       )
 
       ch.default_exchange.publish(tdr_bson.to_s, :routing_key => q.name)
